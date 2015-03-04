@@ -29,15 +29,23 @@ var theData = {};
 var currYear = 2014;
 
 
+
+var teamColors = {
+  "St. Louis Cardinals" : "red",
+  "Kansas City Royals" : "blue"
+}
+
+
+
+
+
 d3.csv("js/mlb.csv", function(error, data) {
 
   console.log(data);
 
   data = data.filter(function(d) {
-    return +d.Year >= 2010;
+    return +d.Year >= 1985;
   });
-
-
 
   data.forEach(function(d) {
     d.wins = +d.W;
@@ -54,16 +62,33 @@ d3.csv("js/mlb.csv", function(error, data) {
   x.domain(d3.extent(data, function(d) { return d.wins; })).nice();
   y.domain(d3.extent(data, function(d) { return d.attendance; })).nice();
 
+  setNav();
   drawChart();
 
 });
 
 
 
-function drawChart() {
-    
 
-  var data = theData[currYear];
+
+function setNav() {
+
+  $(".btn").on("click", function() {
+    var val = $(this).attr("val");
+    currYear = val;
+
+    updateChart();
+
+  });
+
+}
+
+
+
+
+
+
+function drawChart() {
 
   svg.append("g")
       .attr("class", "x axis")
@@ -87,14 +112,73 @@ function drawChart() {
       .style("text-anchor", "end")
       .text("Season Attendance");
 
-  svg.selectAll(".dot")
-      .data(data)
-    .enter().append("circle")
-      .attr("class", "dot")
-      .attr("r", 3.5)
+      updateChart();
+
+}
+
+
+
+
+function updateChart() {
+
+    var data = theData[currYear];
+
+    //The attached to our selected circles (".dot")s
+    var teams = svg.selectAll(".dot")
+        .data(data, function(d) {
+          return d.Tm;
+        });
+      
+    teams.enter()
+      .append("circle")
+        .attr("class", "dot")
+        .attr("r", 10)
+        .attr("cx", function(d) { return x(d.wins); })
+        .attr("cy", function(d) { return y(d.attendance); })
+        .style("fill", function(d) { return color(d.Tm); });
+
+    teams.exit()
+      .transition()
+      .duration(200)
+      .style("fill", "#000");
+      //.remove();
+
+    teams.transition()
+      .duration(200)
       .attr("cx", function(d) { return x(d.wins); })
       .attr("cy", function(d) { return y(d.attendance); })
       .style("fill", function(d) { return color(d.Tm); });
+
+
+
+
+
+    var labels = svg.selectAll(".lbl")
+        .data(data, function(d) {
+          return d.Tm;
+        });
+      
+    labels.enter()
+      .append("text")
+        .attr("class", "lbl")
+        .attr("x", function(d) { return x(d.wins); })
+        .attr("y", function(d) { return y(d.attendance); })
+        .text(function(d) {
+          return d.Tm;
+        });
+
+    labels.exit()
+      .remove();
+
+    labels.transition()
+      .duration(200)
+      .attr("x", function(d) { return x(d.wins); })
+      .attr("y", function(d) { return y(d.attendance); })
+
+
+
+
+
 }
 
 
