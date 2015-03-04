@@ -110,6 +110,9 @@ d3.csv("js/mlb.csv", function(error, data) {
 // We can directly assign that to be the new value of currYear.
 // Then, we update our chart.
 
+// The Bootstrap reference for our button group (markup goes in index.html):
+// http://getbootstrap.com/components/#btn-groups
+
 function setNav() {
 
   $(".btn").on("click", function() {
@@ -217,7 +220,8 @@ function updateChart() {
       .style("fill", function(d) { return color(d.Tm); });
 
 
-
+    // TO READ MORE ABOUT EXIT ENTER, READ MIKE BOSTOCK'S THREE LITTLE CIRCLES TUTORIAL:
+    // http://bost.ocks.org/mike/circles/
 
 
 
