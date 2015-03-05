@@ -115,13 +115,41 @@ d3.csv("js/mlb.csv", function(error, data) {
 
 function setNav() {
 
-  $(".btn").on("click", function() {
-    var val = $(this).attr("val");
-    currYear = val;
+  // $(".btn").on("click", function() {
+  //   var val = $(this).attr("val");
+  //   currYear = val;
 
-    updateChart();
+  //   updateChart();
 
-  });
+  // });
+
+
+    /* ----------------------------------- */
+    /* jQuery UI implementation here */
+    /* ----------------------------------- */
+
+    $(".slider .slider-target").slider({
+      min: 2010, //First year in on slider
+      max: 2014, //Last year on slider
+      step: 1, //Incremental value
+      value: 2014, //Starting value
+      slide: function( event, ui ) {        
+        
+        //The value is contained in the ui object
+        //Console log it to see what all it contains,
+        //but you're looking for ui.value
+
+        currYear = ui.value;
+        updateChart();
+
+
+      }
+    });
+
+    /* ----------------------------------- */
+
+
+
 
 }
 
