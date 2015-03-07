@@ -1,13 +1,3 @@
-
-/* ------------------------------------------------------- */
-/* D3.js Global Variables ----------------------------------- */
-/* ------------------------------------------------------- */
-
-//By now, this block of code shoudl be pretty familiar.
-//We set our margins, define our scales and types
-//And append our SVG somewhere on our chart
-//Most bl.ocks examples append to "body", but we append to our .chart div.
-
 var margin = {top: 20, right: 20, bottom: 30, left: 100},
     width = $(".chart").width() - margin.left - margin.right,
     height = $(".chart").height() - margin.top - margin.bottom;
@@ -34,10 +24,6 @@ var svg = d3.select(".chart").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-/* End of D3.js Global Variables ------------------------------- */
-
-
-
 
 // theData is a global variable we'll use hold our stats for each season.
 var theData = {};
@@ -47,10 +33,9 @@ var theData = {};
 var currYear = 2014;
 
 
-
 // Our data is in the csv format this time,
 // so we'll use d3.csv to to load it.
-d3.csv("js/mlb.csv", function(error, data) {
+d3.csv("data.csv", function(error, data) {
 
   //the raw data object will appear in our console window as one (very) long array.
   console.log(data);
@@ -58,16 +43,16 @@ d3.csv("js/mlb.csv", function(error, data) {
   // Here we filter out the years we don't want.
   // We do this by redefining the value to be an array of objects
   // where the d.Year is greater than or equal to 1985
-  data = data.filter(function(d) {
-    return +d.Year >= 1985;
-  });
+//  data = data.filter(function(d) {
+  //  return +d.Year >= 1985;
+//  });
 
   // Two things happen in our .forEach loop:
   // 1) Since we're loading csv, we need to indicate which fields are integers.
-  //    In this case, we're defining two new properties. "wins" and "attendance".
-  //    We define them as the numberical value of "d.W" and "d.Attendance"
+  //    In this case, we're defining two new properties. "wins" and "loanavg".
+  //    We define them as the numberical value of "d.W" and "d.loanavg"
   // 2) As we loop through our data, we're recreating a item in the theData object for each year.
-  //    We do this by checking to see if "theData[d.Year]"" exists. 
+  //    We do this by checking to see if "theData[d.Year]"" exists.
   //    The if statement below can be read as:
   //        "if not theData[d.Year], create theData[d.Year] and define it as an empty array"
   //    Then, we push the item into that array.
@@ -76,8 +61,8 @@ d3.csv("js/mlb.csv", function(error, data) {
 
 
   data.forEach(function(d) {
-    d.wins = +d.W;
-    d.attendance = +d.Attendance;
+    d.loanavg = +d.loanavg;
+    d.tuition = +d.tuition;
 
     if (!theData[d.Year]) {
       theData[d.Year] = [];
@@ -89,9 +74,9 @@ d3.csv("js/mlb.csv", function(error, data) {
 
 
   //Here we define the domains of the X and Y scales...
-  //... as everything between the lowest and highest values of wins and attendance.
-  x.domain(d3.extent(data, function(d) { return d.wins; })).nice();
-  y.domain(d3.extent(data, function(d) { return d.attendance; })).nice();
+  //... as everything between the lowest and highest values of wins and loanavg.
+  x.domain(d3.extent(data, function(d) { return d.tuition; })).nice();
+  y.domain(d3.extent(data, function(d) { return d.loanavg; })).nice();
 
   //Once our data is set, we're safe to call our functions.
   setNav();
@@ -133,8 +118,8 @@ function setNav() {
       max: 2014, //Last year on slider
       step: 1, //Incremental value
       value: 2014, //Starting value
-      slide: function( event, ui ) {        
-        
+      slide: function( event, ui ) {
+
         //The value is contained in the ui object
         //Console log it to see what all it contains,
         //but you're looking for ui.value
@@ -163,6 +148,7 @@ function setNav() {
 // We'll directly call updateChart(), which is where the circles get drawn on the chart.
 function drawChart() {
 
+
   svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
@@ -172,7 +158,7 @@ function drawChart() {
       .attr("x", width)
       .attr("y", -6)
       .style("text-anchor", "end")
-      .text("Wins");
+      .text("Tuition");
 
   svg.append("g")
       .attr("class", "y axis")
@@ -181,14 +167,13 @@ function drawChart() {
       .attr("class", "label")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
-      .attr("dy", ".71em")
+      .attr("dy", "1em")
       .style("text-anchor", "end")
-      .text("Season Attendance");
+      .text("Average Federal Student Loan");
 
       updateChart();
 
 }
-
 
 
 // At last, this is where our data gets drawn on the chart.
@@ -205,27 +190,27 @@ function updateChart() {
     var data = theData[currYear];
 
     // Select all elements classed ".dot"
-    // Assign the data as the value of "data" and match each element to d.Tm.
+    // Assign the data as the value of "data" and match each element to d.school.
     var teams = svg.selectAll(".dot")
         .data(data, function(d) {
-          return d.Tm;
+          return d.school;
         });
-      
-    // If d.Tm does match any elements classed ".dot",
+
+    // If d.school does match any elements classed ".dot",
     // We create a new one. In other words, it "enters" the chart.
     // The first time our page loads, no circles with the class name "dot" exist
-    // So we append a new one and give it an cx, cy position based on wins and attendance.
+    // So we append a new one and give it an cx, cy position based on tuition and loanavg.
     // If the circle already exists for that team, we do nothing here.
     teams.enter()
       .append("circle")
         .attr("class", "dot")
-        .attr("r", 10)
-        .attr("cx", function(d) { return x(d.wins); })
-        .attr("cy", function(d) { return y(d.attendance); })
-        .style("fill", function(d) { return color(d.Tm); });
+        .attr("r", 5)
+        .attr("cx", function(d) { return x(d.tuition); })
+        .attr("cy", function(d) { return y(d.loanavg); })
+        .style("fill", function(d) { return color(d.school); });
 
     // By the same token, if an "circle" element with the class name "dot" is already on the page
-    // But the d.Tm property doesn't match anything in the new data,
+    // But the d.school property doesn't match anything in the new data,
     // It "exits".
     // Exit doesn't actually remove it though.
     // Exit is just what we use to select the elements that aren't represented in our data.
@@ -243,14 +228,16 @@ function updateChart() {
     // Here we transition (animate) them to new x,y positions on the page.
     teams.transition()
       .duration(200)
-      .attr("cx", function(d) { return x(d.wins); })
-      .attr("cy", function(d) { return y(d.attendance); })
-      .style("fill", function(d) { return color(d.Tm); });
+      .attr("cx", function(d) { return x(d.tuition); })
+      .attr("cy", function(d) { return y(d.loanavg); })
+      .style("fill", function(d) { return color(d.school); });
+
+
+
 
 
     // TO READ MORE ABOUT EXIT ENTER, READ MIKE BOSTOCK'S THREE LITTLE CIRCLES TUTORIAL:
     // http://bost.ocks.org/mike/circles/
-
 
 
   /* -------------- */
@@ -260,18 +247,18 @@ function updateChart() {
     //Everything we did above we'll also do with labels.
     //It is literally the exact same pattern.
 
-    var labels = svg.selectAll(".lbl")
+  /*  var labels = svg.selectAll(".lbl")
         .data(data, function(d) {
-          return d.Tm;
+          return d.school;
         });
-      
+
     labels.enter()
       .append("text")
         .attr("class", "lbl")
-        .attr("x", function(d) { return x(d.wins); })
-        .attr("y", function(d) { return y(d.attendance); })
+        .attr("x", function(d) { return x(d.tuition); })
+        .attr("y", function(d) { return y(d.loanavg); })
         .text(function(d) {
-          return d.Tm;
+          return d.school;
         });
 
     labels.exit()
@@ -279,16 +266,9 @@ function updateChart() {
 
     labels.transition()
       .duration(200)
-      .attr("x", function(d) { return x(d.wins); })
-      .attr("y", function(d) { return y(d.attendance); })
-
-
-
+      .attr("x", function(d) { return x(d.tuition); })
+      .attr("y", function(d) { return y(d.loanavg); })
+*/
 
 
 }
-
-
-
-
-
