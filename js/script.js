@@ -140,11 +140,12 @@ function updateChart() {
         .on("mouseover", function(d) {
             tooltip.transition()
                  .duration(200)
-                 .style("opacity", 1);
-            tooltip.html("<p><b>" + d.school + "</b></p>" + "<p>Tuition: " + "$" + formatCurrency(d.tuition) + "<br>Avg. Loan: $" + formatCurrency(d.loanavg))
+                 .style("opacity", .9);
+            tooltip.html("<p><b>" + d.school + "</b></p>" + "<p>Tuition: " + "$" + formatCurrency(d.tuition) + "<br>Average Loan: $" + formatCurrency(d.loanavg))
 
-            .style("left", d3.select(this).attr("cx") + "px")
-            .style("top", d3.select(this).attr("cy") + "px");
+// something is weird in the .style attribute
+            .style("left", (d3.event.pageX-190) + "px")
+            .style("top", (d3.event.pageY-170) + "px");
         })
         .on("mouseout", function(d) {
             tooltip.transition()
