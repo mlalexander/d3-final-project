@@ -1,6 +1,9 @@
-var margin = {top: 20, right: 20, bottom: 30, left: 100},
+var margin = {top: 20, right: 30, bottom: 30, left: 60},
     width = $(".chart").width() - margin.left - margin.right,
     height = $(".chart").height() - margin.top - margin.bottom;
+
+//formats commas into currency
+var formatCurrency = d3.format(",");
 
 var x = d3.scale.linear()
     .range([0, width]);
@@ -8,15 +11,16 @@ var x = d3.scale.linear()
 var y = d3.scale.linear()
     .range([height, 0]);
 
-var color = d3.scale.category10();
-
+//adds $ to axis ticks and formats numbers with commas
 var xAxis = d3.svg.axis()
     .scale(x)
-    .orient("bottom");
+    .orient("bottom")
+    .tickFormat( function(d) { return "$" + formatCurrency(d) } );
 
 var yAxis = d3.svg.axis()
     .scale(y)
-    .orient("left");
+    .orient("left")
+    .tickFormat( function(d) { return "$" + formatCurrency(d) } );
 
 var svg = d3.select(".chart").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -24,45 +28,21 @@ var svg = d3.select(".chart").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+var tooltip = d3.select(".chart").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
-// theData is a global variable we'll use hold our stats for each season.
 var theData = {};
 
-// currYear will be the "key" we'll use to access an individual year in the data.
-//2014 is our default year and the one we'll see whent he page loads.
 var currYear = 2014;
 
-
-// Our data is in the csv format this time,
-// so we'll use d3.csv to to load it.
 d3.csv("data.csv", function(error, data) {
-
-  //the raw data object will appear in our console window as one (very) long array.
-  console.log(data);
-
-  // Here we filter out the years we don't want.
-  // We do this by redefining the value to be an array of objects
-  // where the d.Year is greater than or equal to 1985
-//  data = data.filter(function(d) {
-  //  return +d.Year >= 1985;
-//  });
-
-  // Two things happen in our .forEach loop:
-  // 1) Since we're loading csv, we need to indicate which fields are integers.
-  //    In this case, we're defining two new properties. "wins" and "loanavg".
-  //    We define them as the numberical value of "d.W" and "d.loanavg"
-  // 2) As we loop through our data, we're recreating a item in the theData object for each year.
-  //    We do this by checking to see if "theData[d.Year]"" exists.
-  //    The if statement below can be read as:
-  //        "if not theData[d.Year], create theData[d.Year] and define it as an empty array"
-  //    Then, we push the item into that array.
-  //    A metaphor: It's like sorting a box of M&Ms. Each M&M goes in a pile of like colors.
-  //    If you come across an M&M with no pile, you create a new pile.
 
 
   data.forEach(function(d) {
     d.loanavg = +d.loanavg;
     d.tuition = +d.tuition;
+    d.type = +d.type;
 
     if (!theData[d.Year]) {
       theData[d.Year] = [];
@@ -72,46 +52,17 @@ d3.csv("data.csv", function(error, data) {
 
   });
 
-
-  //Here we define the domains of the X and Y scales...
-  //... as everything between the lowest and highest values of wins and loanavg.
   x.domain(d3.extent(data, function(d) { return d.tuition; })).nice();
   y.domain(d3.extent(data, function(d) { return d.loanavg; })).nice();
 
-  //Once our data is set, we're safe to call our functions.
   setNav();
   drawChart();
 
 });
 
 
-
-
-
-// setNav is where we assign our button events.
-// When any element with the class "btn" is clicked,
-// We ask what it's "val" property is.
-// Since "val" is defined as a corresponding year in our index.html file,
-// We can directly assign that to be the new value of currYear.
-// Then, we update our chart.
-
-// The Bootstrap reference for our button group (markup goes in index.html):
-// http://getbootstrap.com/components/#btn-groups
-
 function setNav() {
 
-  // $(".btn").on("click", function() {
-  //   var val = $(this).attr("val");
-  //   currYear = val;
-
-  //   updateChart();
-
-  // });
-
-
-    /* ----------------------------------- */
-    /* jQuery UI implementation here */
-    /* ----------------------------------- */
 
     $(".slider .slider-target").slider({
       min: 2010, //First year in on slider
@@ -120,10 +71,6 @@ function setNav() {
       value: 2014, //Starting value
       slide: function( event, ui ) {
 
-        //The value is contained in the ui object
-        //Console log it to see what all it contains,
-        //but you're looking for ui.value
-
         currYear = ui.value;
         updateChart();
 
@@ -131,23 +78,10 @@ function setNav() {
       }
     });
 
-    /* ----------------------------------- */
-
-
-
-
 }
 
 
-
-
-// We separated our chart into two fucntions: drawChart() and updateChart()
-// drawChart will only be called once — when the page is loaded.
-// This is where we draw our x and y axis.
-// And since we're not clicking any buttons when the page loads,
-// We'll directly call updateChart(), which is where the circles get drawn on the chart.
 function drawChart() {
-
 
   svg.append("g")
       .attr("class", "x axis")
@@ -175,100 +109,70 @@ function drawChart() {
 
 }
 
-
-// At last, this is where our data gets drawn on the chart.
-
 function updateChart() {
 
-
-  /* -------------- */
-  /* Circles
-  /* -------------- */
-
-    // First, we define our data element as the value of theData[currYear].
-    // Remember, this is simply an array of objects taht all have the same value for the property "Year".
     var data = theData[currYear];
 
-    // Select all elements classed ".dot"
-    // Assign the data as the value of "data" and match each element to d.school.
-    var teams = svg.selectAll(".dot")
+    var colleges = svg.selectAll(".dot")
         .data(data, function(d) {
           return d.school;
         });
 
-    // If d.school does match any elements classed ".dot",
-    // We create a new one. In other words, it "enters" the chart.
-    // The first time our page loads, no circles with the class name "dot" exist
-    // So we append a new one and give it an cx, cy position based on tuition and loanavg.
-    // If the circle already exists for that team, we do nothing here.
-    teams.enter()
+    colleges.enter()
       .append("circle")
         .attr("class", "dot")
         .attr("r", 5)
         .attr("cx", function(d) { return x(d.tuition); })
         .attr("cy", function(d) { return y(d.loanavg); })
-        .style("fill", function(d) { return color(d.school); });
+        .style("fill", function(d) {
+          if (d.type == 3) {
+            return "#00ff08";
+          } else if (d.type == 2) {
+            return "#000cff";
+          } else {
+            return "#ff0000";
+          }
 
-    // By the same token, if an "circle" element with the class name "dot" is already on the page
-    // But the d.school property doesn't match anything in the new data,
-    // It "exits".
-    // Exit doesn't actually remove it though.
-    // Exit is just what we use to select the elements that aren't represented in our data.
-    // If we'd like to remove it, we use .remove().
-    // I've left the transition to black in place so you can see it in action.
-    teams.exit()
+        })
+
+
+// tooltip on mouseover
+        .on("mouseover", function(d) {
+            tooltip.transition()
+                 .duration(200)
+                 .style("opacity", .9);
+            tooltip.html("<b>" + d.school + "</b>")
+
+            .style("left", d3.select(this).attr("cx") + "px")
+            .style("top", d3.select(this).attr("cy") + "px");
+        })
+        .on("mouseout", function(d) {
+            tooltip.transition()
+                 .duration(500)
+                 .style("opacity", 0);
+
+               });
+
+
+    colleges.exit()
       .transition()
       .duration(200)
       .style("fill", "#000");
-      //.remove();
 
-
-    // Finally, we want to reassign the position of all elements that alredy exist on the chart
-    // AND are represented in the current batch of data.
-    // Here we transition (animate) them to new x,y positions on the page.
-    teams.transition()
+    colleges.transition()
       .duration(200)
       .attr("cx", function(d) { return x(d.tuition); })
       .attr("cy", function(d) { return y(d.loanavg); })
-      .style("fill", function(d) { return color(d.school); });
+      .style("fill", function(d) {
+        if (d.type == 3) {
+          return "#00ff08";
+        } else if (d.type == 2) {
+          return "#000cff";
+        } else {
+          return "#ff0000";
+        }
 
-
-
-
-
-    // TO READ MORE ABOUT EXIT ENTER, READ MIKE BOSTOCK'S THREE LITTLE CIRCLES TUTORIAL:
-    // http://bost.ocks.org/mike/circles/
-
-
-  /* -------------- */
-  /* Labels
-  /* -------------- */
-
-    //Everything we did above we'll also do with labels.
-    //It is literally the exact same pattern.
-
-  /*  var labels = svg.selectAll(".lbl")
-        .data(data, function(d) {
-          return d.school;
-        });
-
-    labels.enter()
-      .append("text")
-        .attr("class", "lbl")
-        .attr("x", function(d) { return x(d.tuition); })
-        .attr("y", function(d) { return y(d.loanavg); })
-        .text(function(d) {
-          return d.school;
-        });
-
-    labels.exit()
-      .remove();
-
-    labels.transition()
-      .duration(200)
-      .attr("x", function(d) { return x(d.tuition); })
-      .attr("y", function(d) { return y(d.loanavg); })
-*/
-
+      })
+;
 
 }

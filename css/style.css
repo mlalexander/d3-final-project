@@ -1,13 +1,11 @@
 
-
-
 .chart {
   height: 500px;
 }
 
 
 body {
-  font: 10px sans-serif;
+  font: 12px sans-serif;
 }
 
 .axis path,
@@ -19,4 +17,20 @@ body {
 
 .dot {
   stroke: #000;
+}
+
+.tooltip {
+  position: absolute;
+  width: 200px;
+  height: 28px;
+  text-align: center;
+  padding: 2px;
+  font: 12px sans-serif;
+  border: 0px;
+  pointer-events: none;
+}
+
+.label {
+  font: 11px sans-serif;
+  font-weight: bold;
 }
