@@ -140,8 +140,8 @@ function updateChart() {
         .on("mouseover", function(d) {
             tooltip.transition()
                  .duration(200)
-                 .style("opacity", .9);
-            tooltip.html("<b>" + d.school + "</b>")
+                 .style("opacity", 1);
+            tooltip.html("<p><b>" + d.school + "</b></p>" + "<p>Tuition: " + "$" + formatCurrency(d.tuition) + "<br>Avg. Loan: $" + formatCurrency(d.loanavg))
 
             .style("left", d3.select(this).attr("cx") + "px")
             .style("top", d3.select(this).attr("cy") + "px");
