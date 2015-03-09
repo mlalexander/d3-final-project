@@ -126,11 +126,11 @@ function updateChart() {
         .attr("cy", function(d) { return y(d.loanavg); })
         .style("fill", function(d) {
           if (d.type == 3) {
-            return "#00ff08";
+            return "#1f77b4";
           } else if (d.type == 2) {
-            return "#000cff";
+            return "#ff7f0e";
           } else {
-            return "#ff0000";
+            return "#9467bd";
           }
 
         })
@@ -165,11 +165,11 @@ function updateChart() {
       .attr("cy", function(d) { return y(d.loanavg); })
       .style("fill", function(d) {
         if (d.type == 3) {
-          return "#00ff08";
+          return "#1f77b4";
         } else if (d.type == 2) {
-          return "#000cff";
+          return "#ff7f0e";
         } else {
-          return "#ff0000";
+          return "#9467bd";
         }
 
       })
