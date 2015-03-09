@@ -153,6 +153,69 @@ function updateChart() {
 
                });
 
+// color legend
+
+               var LYP = 20, LXP = 720;
+
+               svg.append("text")
+               .attr("class", "label")
+               .attr("x", LXP - 5)
+               .attr("y", LYP)
+               .text("Institution Type")
+               .style("font-weight", "bold");
+
+// public school label
+               svg.append("circle")
+               .attr("cx", LXP)
+               .attr("cy", LYP + 20)
+               .attr("r", 10)
+               .style("fill", "#9467bd")
+               .attr("stroke", "#000");
+
+               svg.append("text")
+               .attr("class", "label")
+               .attr("x", LXP + 15)
+               .attr("y", LYP + 25)
+               .style("text-anchor", "start")
+               .text(function(d) {
+                 return "Public";
+               });
+
+
+// private school label
+               svg.append("circle")
+               .attr("cx", LXP)
+               .attr("cy", LYP + 50)
+               .attr("r", 10)
+               .style("fill", "#ff7f0e")
+               .attr("stroke", "#000");
+
+               svg.append("text")
+               .attr("class", "label")
+               .attr("x", LXP + 15)
+               .attr("y", LYP + 55)
+               .style("text-anchor", "start")
+               .text(function(d) {
+                 return "Private";
+               });
+
+// for-profit school label
+
+               svg.append("circle")
+               .attr("cx", LXP)
+               .attr("cy", LYP + 80)
+               .attr("r", 10)
+               .style("fill", "#1f77b4")
+               .attr("stroke", "#000");
+
+               svg.append("text")
+               .attr("class", "label")
+               .attr("x", LXP + 15)
+               .attr("y", LYP + 85)
+               .style("text-anchor", "start")
+               .text(function(d) {
+                 return "For-profit";
+               });
 
     colleges.exit()
       .transition()
@@ -171,6 +234,9 @@ function updateChart() {
         } else {
           return "#9467bd";
         }
+
+
+
 
       })
 ;
