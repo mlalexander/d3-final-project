@@ -43,6 +43,7 @@ d3.csv("data.csv", function(error, data) {
     d.loanavg = +d.loanavg;
     d.tuition = +d.tuition;
     d.type = +d.type;
+    d.enroll = +d.enroll;
 
     if (!theData[d.Year]) {
       theData[d.Year] = [];
@@ -72,6 +73,7 @@ function setNav() {
       slide: function( event, ui ) {
 
         currYear = ui.value;
+        $(".year").html(currYear);
         updateChart();
 
 
@@ -104,6 +106,70 @@ function drawChart() {
       .attr("dy", "1em")
       .style("text-anchor", "end")
       .text("Average Federal Student Loan");
+
+      // color legend
+
+                     var LYP = 20, LXP = 720;
+
+                     svg.append("text")
+                     .attr("class", "label")
+                     .attr("x", LXP - 5)
+                     .attr("y", LYP)
+                     .text("Institution Type")
+                     .style("font-weight", "bold");
+
+      // public school label
+                     svg.append("circle")
+                     .attr("cx", LXP)
+                     .attr("cy", LYP + 20)
+                     .attr("r", 10)
+                     .style("fill", "#9467bd")
+                     .attr("stroke", "#000");
+
+                     svg.append("text")
+                     .attr("class", "label")
+                     .attr("x", LXP + 15)
+                     .attr("y", LYP + 25)
+                     .style("text-anchor", "start")
+                     .text(function(d) {
+                       return "Public";
+                     });
+
+
+      // private school label
+                     svg.append("circle")
+                     .attr("cx", LXP)
+                     .attr("cy", LYP + 50)
+                     .attr("r", 10)
+                     .style("fill", "#ff7f0e")
+                     .attr("stroke", "#000");
+
+                     svg.append("text")
+                     .attr("class", "label")
+                     .attr("x", LXP + 15)
+                     .attr("y", LYP + 55)
+                     .style("text-anchor", "start")
+                     .text(function(d) {
+                       return "Private";
+                     });
+
+      // for-profit school label
+
+                     svg.append("circle")
+                     .attr("cx", LXP)
+                     .attr("cy", LYP + 80)
+                     .attr("r", 10)
+                     .style("fill", "#1f77b4")
+                     .attr("stroke", "#000");
+
+                     svg.append("text")
+                     .attr("class", "label")
+                     .attr("x", LXP + 15)
+                     .attr("y", LYP + 85)
+                     .style("text-anchor", "start")
+                     .text(function(d) {
+                       return "For-profit";
+                     });
 
       updateChart();
 
@@ -141,11 +207,11 @@ function updateChart() {
             tooltip.transition()
                  .duration(200)
                  .style("opacity", .9);
-            tooltip.html("<p><b>" + d.school + "</b></p>" + "<p>Tuition: " + "$" + formatCurrency(d.tuition) + "<br>Average Loan: $" + formatCurrency(d.loanavg))
+            tooltip.html("<p><b>" + d.school + "</b></p>" + "Tuition: " + "$" + formatCurrency(d.tuition) + "<br>Average Loan: $" + formatCurrency(d.loanavg) + "<br>Enrollment: " + formatCurrency(d.enroll))
 
-// something is weird in the .style attribute
-            .style("left", (d3.event.pageX-190) + "px")
-            .style("top", (d3.event.pageY-170) + "px");
+
+            .style("left", (d3.event.pageX-200) + "px")
+            .style("top", (d3.event.pageY-180) + "px");
         })
         .on("mouseout", function(d) {
             tooltip.transition()
@@ -154,69 +220,6 @@ function updateChart() {
 
                });
 
-// color legend
-
-               var LYP = 20, LXP = 720;
-
-               svg.append("text")
-               .attr("class", "label")
-               .attr("x", LXP - 5)
-               .attr("y", LYP)
-               .text("Institution Type")
-               .style("font-weight", "bold");
-
-// public school label
-               svg.append("circle")
-               .attr("cx", LXP)
-               .attr("cy", LYP + 20)
-               .attr("r", 10)
-               .style("fill", "#9467bd")
-               .attr("stroke", "#000");
-
-               svg.append("text")
-               .attr("class", "label")
-               .attr("x", LXP + 15)
-               .attr("y", LYP + 25)
-               .style("text-anchor", "start")
-               .text(function(d) {
-                 return "Public";
-               });
-
-
-// private school label
-               svg.append("circle")
-               .attr("cx", LXP)
-               .attr("cy", LYP + 50)
-               .attr("r", 10)
-               .style("fill", "#ff7f0e")
-               .attr("stroke", "#000");
-
-               svg.append("text")
-               .attr("class", "label")
-               .attr("x", LXP + 15)
-               .attr("y", LYP + 55)
-               .style("text-anchor", "start")
-               .text(function(d) {
-                 return "Private";
-               });
-
-// for-profit school label
-
-               svg.append("circle")
-               .attr("cx", LXP)
-               .attr("cy", LYP + 80)
-               .attr("r", 10)
-               .style("fill", "#1f77b4")
-               .attr("stroke", "#000");
-
-               svg.append("text")
-               .attr("class", "label")
-               .attr("x", LXP + 15)
-               .attr("y", LYP + 85)
-               .style("text-anchor", "start")
-               .text(function(d) {
-                 return "For-profit";
-               });
 
     colleges.exit()
       .transition()
